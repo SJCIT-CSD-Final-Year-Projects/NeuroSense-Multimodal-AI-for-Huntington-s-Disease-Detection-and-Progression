@@ -1,4 +1,3 @@
-
 # 🧬 NeuroSense
 
 <p align="center">
@@ -121,54 +120,59 @@ NeuroSense addresses the challenge of heterogeneous disease progression by syner
 
 ```text
 NeuroSense/
-├── package.json                   # Root scripts for frontend orchestration
 ├── README.md                      # Project documentation and guide
 ├── .env.example                   # Environment variable template
-├── exp.txt                        # Project abstract and concise summary
-├── uploads/                       # Temporary upload staging directory
-│   └── Execution.txt              # Quick execution cheatsheet
-├── outputs/                       # Generated heatmaps and analysis reports
-│   └── heatmaps/                  # GradCAM++ visualization artifacts
-├── checkpoints/                   # Trained deep learning model weights
-│   └── best_model.pt              # Production model checkpoint
-├── neurosense/                    # Core Python application package
-│   ├── api/                       # FastAPI backend service
-│   │   ├── main.py                # Main application, lifespan & routing
-│   │   ├── schemas.py             # Pydantic request/response schemas
-│   │   ├── inference.py           # Deep learning inference pipeline
-│   │   ├── clinical_scoring.py    # Clinical score calculation logic
-│   │   └── routes/                # Modular sub-routers
-│   │       ├── chatbot.py         # Groq AI clinical chatbot endpoints
-│   │       └── cognitive.py       # Digital cognitive battery API
-│   ├── cognitive/                 # Neuropsychological testing suite
-│   │   ├── tests.py               # SDMT, N-Back, Fluency, Trails, Recall
-│   │   ├── session.py             # Cognitive session & state management
-│   │   └── scoring.py             # Normative z-scores & classification
-│   ├── database/                  # MongoDB async database layer
-│   │   ├── connection.py          # Motor connection manager & ping
-│   │   ├── models.py              # User, prediction, and test models
-│   │   └── crud.py                # Database queries and persistence
-│   ├── models/                    # Neural network architectures
-│   │   ├── mri_encoder.py         # 3D ResNet-50 volumetric encoder
-│   │   ├── clinical_encoder.py    # Bi-LSTM longitudinal encoder
-│   │   ├── fusion.py              # Cross-modal multi-head attention
-│   │   └── classifier.py          # Staging and progression heads
-│   ├── explainability/            # Interpretability & XAI modules
-│   │   ├── gradcam.py             # 3D GradCAM++ implementation
-│   │   ├── shap_analysis.py       # SHAP DeepExplainer integration
-│   │   └── visualise.py           # Slice slicing and overlay generation
-│   ├── training/                  # Model training and ablation pipeline
-│   │   ├── train.py               # End-to-end training loop
-│   │   ├── ablation.py            # Multi-condition ablation framework
-│   │   ├── evaluate.py            # AUC, F1, and ECE evaluation metrics
-│   │   └── losses.py              # Weighted cross-entropy & Huber loss
-│   ├── data/                      # Dataset handling & neuroimaging transforms
-│   │   ├── dataset.py             # MONAI dataset loaders
-│   │   ├── preprocessing.py       # Spatial resampling, normalization
-│   │   └── harmonizer.py          # Multi-site harmonization utilities
-│   ├── configs/                   # Hyperparameter and model YAML configs
-│   ├── scripts/                   # Setup and preprocessing automation
-│   ├── tests/                     # Unit and integration test suite
+├── neurosense/                    # Core application package
+│   ├── __init__.py                # Package initializer
+│   ├── backend/                   # Python backend service
+│   │   ├── __init__.py            # Package initializer
+│   │   ├── app.py                 # Gradio + FastAPI entry point (HF Spaces)
+│   │   ├── Dockerfile             # Docker deployment configuration
+│   │   ├── .dockerignore          # Docker ignore rules
+│   │   ├── requirements.txt       # Python dependencies
+│   │   ├── api/                   # FastAPI backend service
+│   │   │   ├── __init__.py        # Package initializer
+│   │   │   ├── main.py            # Main application, lifespan & routing
+│   │   │   ├── schemas.py         # Pydantic request/response schemas
+│   │   │   ├── inference.py       # Deep learning inference pipeline
+│   │   │   ├── clinical_scoring.py# Clinical score calculation logic
+│   │   │   └── routes/            # Modular sub-routers
+│   │   │       ├── chatbot.py     # Groq AI clinical chatbot endpoints
+│   │   │       └── cognitive.py   # Digital cognitive battery API
+│   │   ├── cognitive/             # Neuropsychological testing suite
+│   │   │   ├── tests.py           # SDMT, N-Back, Fluency, Trails, Recall
+│   │   │   ├── session.py         # Cognitive session & state management
+│   │   │   └── scoring.py         # Normative z-scores & classification
+│   │   ├── database/              # MongoDB async database layer
+│   │   │   ├── connection.py      # Motor connection manager & ping
+│   │   │   ├── models.py          # User, prediction, and test models
+│   │   │   └── crud.py            # Database queries and persistence
+│   │   ├── models/                # Neural network architectures
+│   │   │   ├── mri_encoder.py     # 3D ResNet-50 volumetric encoder
+│   │   │   ├── clinical_encoder.py# Bi-LSTM longitudinal encoder
+│   │   │   ├── fusion.py          # Cross-modal multi-head attention
+│   │   │   └── classifier.py      # Staging and progression heads
+│   │   ├── explainability/        # Interpretability & XAI modules
+│   │   │   ├── __init__.py        # Package initializer
+│   │   │   ├── gradcam.py         # 3D GradCAM++ implementation
+│   │   │   ├── shap_analysis.py   # SHAP DeepExplainer integration
+│   │   │   └── visualise.py       # Slice slicing and overlay generation
+│   │   ├── training/              # Model training and ablation pipeline
+│   │   │   ├── train.py           # End-to-end training loop
+│   │   │   ├── ablation.py        # Multi-condition ablation framework
+│   │   │   ├── evaluate.py        # AUC, F1, and ECE evaluation metrics
+│   │   │   └── losses.py          # Weighted cross-entropy & Huber loss
+│   │   ├── data/                  # Dataset handling & neuroimaging transforms
+│   │   │   ├── __init__.py        # Package initializer
+│   │   │   ├── dataset.py         # MONAI dataset loaders
+│   │   │   ├── preprocessing.py   # Spatial resampling, normalization
+│   │   │   └── harmonizer.py      # Multi-site harmonization utilities
+│   │   ├── checkpoints/           # Trained model weights
+│   │   ├── outputs/               # Generated heatmaps and reports
+│   │   ├── uploads/               # Temporary upload staging
+│   │   ├── configs/               # Hyperparameter and model YAML configs
+│   │   ├── scripts/               # Setup and preprocessing automation
+│   │   └── tests/                 # Unit and integration test suite
 │   └── frontend/                  # React clinical dashboard
 │       ├── package.json           # Frontend dependencies & Vite scripts
 │       ├── vite.config.js         # Vite build configuration
@@ -176,7 +180,7 @@ NeuroSense/
 │           ├── App.jsx            # Main app component & routing
 │           ├── App.css            # Custom CSS & design system
 │           ├── BrainViewer3D.jsx  # Three.js 3D brain visualizer
-│           ├── LanguageContext.jsx# Multi-language context provider
+│           ├── LanguageContext.jsx # Multi-language context provider
 │           ├── ToastContext.jsx   # Clinical notifications provider
 │           └── translations.js    # Internationalization dictionary
 ```
@@ -249,7 +253,7 @@ source venv/bin/activate
 
 # Install dependencies
 pip install --upgrade pip
-pip install -r neurosense/requirements.txt
+pip install -r neurosense/backend/requirements.txt
 ```
 
 ---
@@ -275,7 +279,7 @@ You can launch both servers simultaneously in separate terminals:
 #### Terminal 1 — Start FastAPI Server
 ```bash
 # From workspace root:
-uvicorn neurosense.api.main:app --host 0.0.0.0 --port 8000 --reload
+uvicorn neurosense.backend.api.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 - API Base URL: `http://localhost:8000`
 - Interactive OpenAPI / Swagger Docs: `http://localhost:8000/docs`

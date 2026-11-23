@@ -42,3 +42,6 @@ saved_models/
 # ─── Logs ───
 *.log
 logs/
+
+# ─── Local Development Symlinks ───
+neurosense/backend/neurosense

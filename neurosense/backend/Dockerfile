@@ -1,4 +1,4 @@
-# NeuroSense AI API — Dockerfile for Hugging Face Spaces & Cloud Deployment
+# NeuroSense AI API — Dockerfile for Railway & Cloud Deployment
 FROM python:3.10-slim
 
 # System dependencies for OpenCV, scientific computing, and medical imaging
@@ -28,17 +28,17 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
 
 # Copy requirements and install
-COPY --chown=user:user neurosense/requirements.txt /app/requirements.txt
+COPY --chown=user:user neurosense/backend/requirements.txt /app/requirements.txt
 RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # Copy application source code
 COPY --chown=user:user . /app
 
 # Ensure directories for outputs and uploads exist with write permissions
-RUN mkdir -p /app/outputs/heatmaps /app/uploads /app/neurosense/checkpoints
+RUN mkdir -p /app/neurosense/backend/outputs/heatmaps /app/neurosense/backend/uploads /app/neurosense/backend/checkpoints
 
-# Hugging Face Spaces routes to port 7860 by default
-EXPOSE 7860
+# Railway assigns $PORT dynamically; default to 8000 for local Docker builds
+EXPOSE 8000
 
-# Launch FastAPI with uvicorn
-CMD ["uvicorn", "neurosense.api.main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Launch FastAPI with uvicorn — uses $PORT from Railway, falls back to 8000
+CMD ["sh", "-c", "uvicorn neurosense.backend.api.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

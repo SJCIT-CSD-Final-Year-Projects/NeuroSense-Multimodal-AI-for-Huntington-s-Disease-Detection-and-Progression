@@ -15,7 +15,7 @@ Colour Mapping:
     - Overlay alpha: 0.4 (configurable)
 
 Usage:
-    from neurosense.explainability.visualise import (
+    from neurosense.backend.explainability.visualise import (
         overlay_gradcam_on_slices,
         plot_shap_waterfall,
         create_report_figure,

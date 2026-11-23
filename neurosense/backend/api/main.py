@@ -14,10 +14,10 @@ to handle model loading and resource cleanup.
 
 Usage:
     # Development
-    uvicorn neurosense.api.main:app --host 0.0.0.0 --port 8000 --reload
+    uvicorn neurosense.backend.api.main:app --host 0.0.0.0 --port 8000 --reload
 
     # Production
-    uvicorn neurosense.api.main:app --host 0.0.0.0 --port 8000 --workers 1
+    uvicorn neurosense.backend.api.main:app --host 0.0.0.0 --port 8000 --workers 1
 """
 
 from __future__ import annotations
@@ -31,6 +31,13 @@ from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+# Ensure project root and backend dir are in python path
+_BACKEND_DIR = Path(__file__).resolve().parent.parent
+_ROOT_DIR = _BACKEND_DIR.parent.parent
+for _p in [str(_ROOT_DIR), str(_BACKEND_DIR)]:
+    if _p not in sys.path:
+        sys.path.insert(0, _p)
 
 try:
     from dotenv import load_dotenv
@@ -47,8 +54,8 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from neurosense.api.inference import InferencePipeline
-from neurosense.api.schemas import (
+from neurosense.backend.api.inference import InferencePipeline
+from neurosense.backend.api.schemas import (
     ClinicalInput,
     ErrorResponse,
     HealthResponse,
@@ -57,14 +64,14 @@ from neurosense.api.schemas import (
     StageProbabilities,
     VersionResponse,
 )
-from neurosense.database.connection import (
+from neurosense.backend.database.connection import (
     close_db,
     connect_db,
     ensure_connected,
     get_database,
     is_connected,
 )
-from neurosense.database.crud import (
+from neurosense.backend.database.crud import (
     create_user,
     get_all_predictions,
     get_prediction_by_id,
@@ -77,7 +84,7 @@ from neurosense.database.crud import (
     save_prediction,
     save_test_result,
 )
-from neurosense.database.models import (
+from neurosense.backend.database.models import (
     PredictionDocument,
     TestResultDocument,
     UserDocument,
@@ -88,9 +95,9 @@ logger = logging.getLogger(__name__)
 # ─── Configuration ───
 API_VERSION = "1.0.0"
 MODEL_VERSION = "neurosense-v1"
-CHECKPOINT_PATH = Path("checkpoints/best_model.pt")
-HEATMAP_DIR = Path("outputs/heatmaps")
-UPLOAD_DIR = Path("uploads")
+CHECKPOINT_PATH = Path("neurosense/backend/checkpoints/best_model.pt")
+HEATMAP_DIR = Path("neurosense/backend/outputs/heatmaps")
+UPLOAD_DIR = Path("neurosense/backend/uploads")
 
 # Global state
 _pipeline: InferencePipeline | None = None
@@ -206,12 +213,12 @@ app.mount(
 
 
 # ─── Cognitive Assessment Router ───
-from neurosense.api.routes.cognitive import router as cognitive_router
+from neurosense.backend.api.routes.cognitive import router as cognitive_router
 
 app.include_router(cognitive_router)
 
 # ─── AI Chatbot Router ───
-from neurosense.api.routes.chatbot import router as chatbot_router
+from neurosense.backend.api.routes.chatbot import router as chatbot_router
 
 app.include_router(chatbot_router)
 
@@ -230,7 +237,7 @@ def _load_image_model():
     import ssl
     ssl._create_default_https_context = ssl._create_unverified_context
 
-    from neurosense.models.image_classifier import HDImageClassifier
+    from neurosense.backend.models.image_classifier import HDImageClassifier
 
     if torch.cuda.is_available():
         _image_device = torch.device("cuda")
@@ -241,7 +248,7 @@ def _load_image_model():
 
     candidate_paths = [
         Path(__file__).resolve().parent.parent / "checkpoints" / "hd_image_best.pth",
-        Path("neurosense/checkpoints/hd_image_best.pth"),
+        Path("neurosense/backend/checkpoints/hd_image_best.pth"),
         Path("checkpoints/hd_image_best.pth"),
     ]
     ckpt_path = next((p for p in candidate_paths if p.exists()), candidate_paths[0])
@@ -316,7 +323,7 @@ async def predict_image(
     from PIL import Image
     from torchvision import transforms
 
-    from neurosense.api.clinical_scoring import (
+    from neurosense.backend.api.clinical_scoring import (
         compute_clinical_score,
         fuse_image_clinical,
     )
@@ -374,7 +381,7 @@ async def predict_image(
         image = Image.open(io.BytesIO(content)).convert("RGB")
 
         # ─── Anatomical Validation (Brain MRI Gatekeeper) ───
-        from neurosense.data.mri_validator import validate_brain_mri
+        from neurosense.backend.data.mri_validator import validate_brain_mri
 
         mri_check = validate_brain_mri(image)
         if not mri_check.get("is_brain_mri", mri_check.get("is_valid", False)):
@@ -396,7 +403,7 @@ async def predict_image(
         # ─── MRI Intensity & Contrast Harmonization (Kill Shortcut Learning) ───
         # Standardizes brain Z-scores, applies CLAHE, strips background noise,
         # and crops cranial region to prevent scanner vendor bias
-        from neurosense.data.harmonizer import harmonize_2d_slice
+        from neurosense.backend.data.harmonizer import harmonize_2d_slice
 
         harmonized_2d, tensor = harmonize_2d_slice(
             image,
@@ -445,8 +452,8 @@ async def predict_image(
         primary_brain_region = None
         heatmap_color_guide = []
         try:
-            from neurosense.explainability.gradcam import GradCAM2D
-            from neurosense.explainability.visualise import (
+            from neurosense.backend.explainability.gradcam import GradCAM2D
+            from neurosense.backend.explainability.visualise import (
                 analyze_brain_regions,
                 save_2d_heatmap_overlay,
             )
@@ -976,7 +983,7 @@ async def predict(
             )
         else:
             # Standalone digital assessment scoring (when no 3D MRI volume is uploaded)
-            from neurosense.api.clinical_scoring import compute_clinical_score
+            from neurosense.backend.api.clinical_scoring import compute_clinical_score
             import uuid
 
             # Parse comma-separated symptoms list
